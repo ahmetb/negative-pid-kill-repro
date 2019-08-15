@@ -11,12 +11,15 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"github.com/google/uuid"
 	"syscall"
 )
 
 var proc *os.Process
+var incarnation string
 
 func main() {
+	incarnation = uuid.New().String()
 	http.HandleFunc("/kill", kill)
 	http.HandleFunc("/run", run)
 	http.HandleFunc("/ps", ps)
@@ -25,9 +28,10 @@ func main() {
 }
 
 func home(w http.ResponseWriter, _ *http.Request) {
+	fmt.Fprintf(w, "container incarnation id: %s\n\n", incarnation)
 	fmt.Fprintln(w, "/run")
 	fmt.Fprintln(w, "/ps")
-	fmt.Fprintln(w, "/kill (optional ?pid=, otherwise kill subprocess’s pgrp)")
+	fmt.Fprintln(w, "/kill (optional ?pid=, otherwise kills subprocess’s pgrp via negative PID)")
 }
 func run(w http.ResponseWriter, _ *http.Request) {
 	if proc != nil {
