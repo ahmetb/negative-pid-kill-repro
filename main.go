@@ -21,6 +21,7 @@ var incarnation string
 func main() {
 	incarnation = uuid.New().String()
 	http.HandleFunc("/kill", kill)
+	http.HandleFunc("/start", kill)
 	http.HandleFunc("/run", run)
 	http.HandleFunc("/ps", ps)
 	http.HandleFunc("/", home)
@@ -55,6 +56,9 @@ func kill(w http.ResponseWriter, req *http.Request) {
 	} else if proc != nil {
 		id = -proc.Pid
 		proc = nil
+	} else {
+		fmt.Fprintf(w, "visit /run first to start process")
+		return
 	}
 
 	if err := syscall.Kill(id, syscall.SIGKILL); err != nil {
